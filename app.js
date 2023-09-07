@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000; // Choose a port of your choice
 const axios=require('axios')
+require('dotenv').config();
 // Middleware to enable CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with your client's domain for security
@@ -10,10 +11,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Define a route for proxying API requests
+const envAPIS=[];
+const n=process.env.NKEYS;
+for(let i=1;i<=n;i++) envAPIS.push(process.env['APIKEY'+i]);
+
+function getRandAPI(arr) {
+  const randomIndex = Math.floor(Math.random() * arr.length);
+  return arr[randomIndex];
+}
+
 app.get('/api', (req, res) => {
   const {q}=req.query;
-  axios.get(`https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&apiKey=2abe11e647cd45f0957adc6e0f2db6e4`)
+  axios.get(`https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&apiKey=${getRandAPI(envAPIS)}`)
     .then(response => res.json(response.data))
     .catch(error => res.status(500).json({ error: 'Proxy error' }));
 });
